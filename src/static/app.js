@@ -97,9 +97,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Add event listeners for delete buttons
-  activitiesList.querySelectorAll('.delete-participant').forEach((btn) => {
-    btn.addEventListener('click', async (e) => {
+  // Initialize app
+  fetchActivities();
+
+  // Add event delegation for delete buttons (fixes issue with dynamic content)
+  activitiesList.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('delete-participant')) {
+      const btn = event.target;
       const activity = btn.getAttribute('data-activity');
       const email = btn.getAttribute('data-email');
       try {
@@ -120,9 +124,6 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.className = 'error';
         messageDiv.classList.remove('hidden');
       }
-    });
+    }
   });
-
-  // Initialize app
-  fetchActivities();
 });
