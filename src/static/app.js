@@ -23,28 +23,23 @@ document.addEventListener("DOMContentLoaded", () => {
         // Participants section
         let participantsHTML = "";
         if (details.participants.length > 0) {
-          participantsHTML = `
-            <div class="participants-section">
-              <strong>Participants:</strong>
-              <ul class="participants-list">
-                ${details.participants.map(email => `<li>${email}</li>`).join("")}
-              </ul>
-            </div>
-          `;
+          participantsHTML = `<div class="participants-section"><strong>Participants:</strong><ul class="participants-list" style="list-style-type:none;padding-left:0;">`;
+          details.participants.forEach((participant) => {
+            participantsHTML += `<li style="display:flex;align-items:center;gap:6px;">
+              <span>${participant}</span>
+              <button class="delete-participant" data-activity="${name}" data-email="${participant}" title="Unregister" style="background:none;border:none;color:#d32f2f;cursor:pointer;font-size:18px;line-height:1;">&#128465;</button>
+            </li>`;
+          });
+          participantsHTML += `</ul></div>`;
         } else {
-          participantsHTML = `
-            <div class="participants-section">
-              <strong>Participants:</strong>
-              <span class="no-participants">No participants yet</span>
-            </div>
-          `;
+          participantsHTML = `<div class="participants-section"><span class="no-participants">No participants yet.</span></div>`;
         }
 
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          <p><strong>Spots left:</strong> ${spotsLeft}</p>
           ${participantsHTML}
         `;
 
@@ -100,6 +95,32 @@ document.addEventListener("DOMContentLoaded", () => {
       messageDiv.classList.remove("hidden");
       console.error("Error signing up:", error);
     }
+  });
+
+  // Add event listeners for delete buttons
+  activitiesList.querySelectorAll('.delete-participant').forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      const activity = btn.getAttribute('data-activity');
+      const email = btn.getAttribute('data-email');
+      try {
+        const response = await fetch(`/activities/${encodeURIComponent(activity)}/unregister?email=${encodeURIComponent(email)}`, { method: 'DELETE' });
+        if (response.ok) {
+          fetchActivities();
+          messageDiv.textContent = `Unregistered ${email} from ${activity}.`;
+          messageDiv.className = 'success';
+        } else {
+          const result = await response.json();
+          messageDiv.textContent = result.detail || 'Failed to unregister.';
+          messageDiv.className = 'error';
+        }
+        messageDiv.classList.remove('hidden');
+        setTimeout(() => { messageDiv.classList.add('hidden'); }, 5000);
+      } catch (error) {
+        messageDiv.textContent = 'Failed to unregister. Please try again.';
+        messageDiv.className = 'error';
+        messageDiv.classList.remove('hidden');
+      }
+    });
   });
 
   // Initialize app
