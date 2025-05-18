@@ -78,6 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        fetchActivities(); // Refresh activities after successful signup
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
@@ -107,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const activity = btn.getAttribute('data-activity');
       const email = btn.getAttribute('data-email');
       try {
-        const response = await fetch(`/activities/${encodeURIComponent(activity)}/unregister?email=${encodeURIComponent(email)}`, { method: 'DELETE' });
+        const response = await fetch(`/activities/${encodeURIComponent(activity)}/signup?email=${encodeURIComponent(email)}`, { method: 'DELETE' });
         if (response.ok) {
           fetchActivities();
           messageDiv.textContent = `Unregistered ${email} from ${activity}.`;
